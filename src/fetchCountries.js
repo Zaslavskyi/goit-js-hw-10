@@ -1,8 +1,9 @@
 export default function fetchCountryName(countryName) {
-    const URL = `https://restcountries.com/v3.1/name/${countryName} ? fields = name, capital, population, flags, languages`;
+    const responseFilter = `?fields=name,capital,population,flags,languages`;
 
-    return fetch(URL).then(response => {
-        if (!responcse.ok) {
+    return fetch(`https://restcountries.com/v3.1/name/${countryName}${responseFilter}`)
+    .then(response => {
+        if (!response.ok) {
             throw new Error(response.status);
         };
         return response.json();
