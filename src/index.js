@@ -1,58 +1,81 @@
 import './css/styles.css';
 import debounce from 'lodash.debounce';
 import Notiflix from 'notiflix';
-import fetchCountryName from './fetchCountries';
+import fetchCountries from './fetchCountries';
 
-
-const refs = {
-    inputElement: document.querySelector('#search-box'),
-    listElement: document.querySelector('.country-list'),
-    divElement: document.querySelector('.country-info'),
-};
-
-let debounce = require('lodash.debounce');
 const DEBOUNCE_DELAY = 300;
-refs.inputElement.addEventListener('input', debounce(onCountryInput, DEBOUNCE_DELAY));
 
-function onCountryInput(e) {
-    let countryName = e.target.value.trim();
+const inputElement = document.querySelector('[id = "search-box"]');
+const listElement = document.querySelector('.country-list');
+const divElement = document.querySelector('.country-info');
 
-    if (countryName === '') {
-        if (refs.listElement.innerHTML !== '' || refs.divElement.innerHTML !== '') {
-            refs.divElement.innerHTML = '';
-            refs.listElement.innerHTML = '';
-        };
+let markup = '';
+
+
+inputElement.addEventListener('input', debounce(onInputSearch, DEBOUNCE_DELAY));
+
+function onInputSearch(e) {
+    e.preventDefault();
+
+    const formValue = inputElement.value.trim();
+    clearHTML();
+
+    if (formValue === '') {
+        return;
+    }
+
+    fetchCountries(formValue).then(onUpdateUi).catch(showError);
+}
+
+function onUpdateUi(countries) {
+    if (!countries) {
+        return;
+    }
+
+    if (countries.length > 10) {
+        Notiflix.Notify.info('"Too many matches found. Please enter a more specific name." ');
         return;
     };
 
-    fetchCountryName(countryName)
-    .then(data => {
-        if (data.length > 10) {
-            Notiflix.Notify.success('Too many matches found. Please enter a more specific name.');
-        }
+    if (countries.length > 1) {
+        return makeCountriesList(countries);
+    };
 
-        if (data.length >= 2 && data.length <=10) {
-            refs.divElement.innerHTML = '';
-            refs.listElement.innerHTML = markupForSymbols(data);
-        }
-
-        if (data.length === 1) {
-            refs.listElement.innerHTML = '';
-            console.log(data);
-            refs.divElement.innerHTML = markupForCountry(data);
-        };
-    })
-    .catch(error => {
-        console.log(error);
-        Notiflix.Notify.warning('Oops, there is no country with that name');
-    });
+    if (countries.length === 1) {
+        return makeCountriesInfo(countries);
+    };
 };
 
-function markupForCountry(array) {
-    return array.map(({name, capital, population, flags, languages}) => {
-        return ` <p class = "title"><img src="${flags.svg} alt="flag of ${name.official}" width="70" height="50"> ${name.official}</p>
-        <p><span> Capital:</span> ${capital}</p>
-        <p><span> Languages:</span> ${Object.values(languages)}</p>`
+function makeCountriesList(countries) {
+    markup = countries
+    .map(country => {
+        return `<li class="item"><img class="flag" src=${country.flag.svg} width="30"/><p class="country-name--small">${country.name.common}</p></li>`;
     })
     .join('');
+
+    return listElement.insertAdjacentHTML('afterbegin', markup);
+}
+
+function makeCountriesInfo(country) {
+    markup = country
+    .map(country => {
+        return `
+        <div class="country"> <span><img class"flag" src=${country.flags.svg} width="30"/></span>
+        <p class="country-name--big">${country.name.common}</p>
+        <ul class="country-list">
+        <li class="country-list__item"><p class="country-list__text"> Capital:${country.capital}</p></li>
+        <li class="country-list__item"><p calss="country-list__text">Population:${country.population}</p></li>
+        <li class="country-list__item"><p class="country-list__text">Languages:${Object.values(country.languages).join(',')}</p></li></ul></div>`;
+    })
+    .join('');
+    return divElement.insertAdjacentHTML('afterbegin', markup);
+};
+
+function clearHTML() {
+    divElement.innerHTML = '';
+    listElement.innerHTML = '';
+};
+
+function showError() {
+    return Notiflix.Notify.failure('Oops, there is no country with that name...');
 }
