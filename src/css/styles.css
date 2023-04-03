@@ -19,35 +19,45 @@ body {
   margin-bottom: 16px;
 }
 
-.country-list__text {
-  font-size: 30px;
-  margin-left: 25px;
-
-}
-
-.title {
-  font-size: 50px;
-  font-weight: bold;
-}
-
 .country-list {
-  margin-left: 50px;
-  font-size: 30px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 400px;
 }
 
-span {
-  font-weight: bold;
-  color: rgb(99, 142, 82);
-  margin-left: 50px;
+.item {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid royalblue;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-p {
-  margin-left: 50px;
-  font-size: 30px;
+.country-item:hover {
+  background-color: #358ec4;
 }
 
-.country {
-  padding: 15px;
-  border: 1px solid #24c35c;
-  box-shadow: 10px 10px 5px grey;
+.flag {
+  width: 30px;
+  margin-right: 16px;
+}
+
+.country-info {
+  margin-top: 24px;
+  padding: 16px;
+  border: 1px solid #7a1e1e;
+  border-radius: 4px;
+  width: 400px;
+}
+
+.country-name--big {
+  margin-bottom: 16px;
+  font-weight: 500;
+  font-size: 24px;
+}
+
+.country-list__text {
+  margin-bottom: 8px;
+  font-size: 16px;
 }
